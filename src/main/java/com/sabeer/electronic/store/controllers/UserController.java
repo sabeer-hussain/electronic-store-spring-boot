@@ -1,6 +1,7 @@
 package com.sabeer.electronic.store.controllers;
 
 import com.sabeer.electronic.store.dtos.ApiResponseMessage;
+import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.UserDto;
 import com.sabeer.electronic.store.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -19,7 +21,7 @@ public class UserController {
 
     // create
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         UserDto createdUserDto = userService.createUser(userDto);
         return new ResponseEntity<>(createdUserDto, HttpStatus.CREATED);
     }
@@ -28,7 +30,7 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable("userId") String userId,
-            @RequestBody UserDto userDto) {
+            @Valid @RequestBody UserDto userDto) {
         UserDto updatedUserDto = userService.updateUser(userDto, userId);
         return new ResponseEntity<>(updatedUserDto, HttpStatus.OK);
     }
@@ -47,8 +49,13 @@ public class UserController {
 
     // get all
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+    public ResponseEntity<PageableResponse<UserDto>> getAllUsers(
+            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "name", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+    ) {
+        return new ResponseEntity<>(userService.getAllUsers(pageNumber, pageSize, sortBy, sortDir), HttpStatus.OK);
     }
 
     // get single
