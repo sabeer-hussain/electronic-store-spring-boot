@@ -6,20 +6,27 @@ import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.UserDto;
 import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+    private Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Value("${user.profile.image.path}")
     private String imageUploadPath;
@@ -105,4 +112,16 @@ public class UserController {
         return new ResponseEntity<>(imageResponse, HttpStatus.CREATED);
     }
 
+    // serve user image
+    @GetMapping("/image/{userId}")
+    public void serveUserImage(@PathVariable String userId, HttpServletResponse response) throws IOException {
+        UserDto user = userService.getUserById(userId);
+        LOGGER.info("User image name : {}", user.getImageName());
+
+        InputStream resource = fileService.getResource(imageUploadPath, user.getImageName());
+        String extension = user.getImageName().substring(user.getImageName().lastIndexOf(".")+1);
+        LOGGER.info("Extension : {}", extension);
+        response.setContentType("image/"+extension);
+        StreamUtils.copy(resource, response.getOutputStream());
+    }
 }

@@ -45,4 +45,11 @@ public class FileServiceImpl implements FileService {
             throw new BadApiRequestException("File with this " + extension + " not allowed !!");
         }
     }
+
+    @Override
+    public InputStream getResource(String path, String name) throws FileNotFoundException {
+        String fullPath = path + File.separator + name;
+        FileInputStream inputStream = new FileInputStream(fullPath);
+        return inputStream;
+    }
 }
