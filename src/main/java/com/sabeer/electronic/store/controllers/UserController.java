@@ -1,23 +1,34 @@
 package com.sabeer.electronic.store.controllers;
 
 import com.sabeer.electronic.store.dtos.ApiResponseMessage;
+import com.sabeer.electronic.store.dtos.ImageResponse;
 import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.UserDto;
+import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
+    @Value("${user.profile.image.path}")
+    private String imageUploadPath;
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private FileService fileService;
 
     // create
     @PostMapping
@@ -74,6 +85,24 @@ public class UserController {
     @GetMapping("/search/{keywords}")
     public ResponseEntity<List<UserDto>> searchUser(@PathVariable String keywords) {
         return new ResponseEntity<>(userService.searchUser(keywords), HttpStatus.OK);
+    }
+
+    // upload user image
+    @PostMapping("/image/{userId}")
+    public ResponseEntity<ImageResponse> uploadUserImage(@RequestParam("userImage") MultipartFile image, @PathVariable String userId) throws IOException {
+        String imageName = fileService.uploadFile(image, imageUploadPath);
+
+        UserDto user = userService.getUserById(userId);
+        user.setImageName(imageName);
+        userService.updateUser(user, userId);
+
+        ImageResponse imageResponse = ImageResponse.builder()
+                                            .imageName(imageName)
+                                            .message("Image is uploaded successfully")
+                                            .success(true)
+                                            .status(HttpStatus.CREATED)
+                                        .build();
+        return new ResponseEntity<>(imageResponse, HttpStatus.CREATED);
     }
 
 }
