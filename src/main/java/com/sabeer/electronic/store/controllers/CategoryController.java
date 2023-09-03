@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @RestController
@@ -96,5 +99,18 @@ public class CategoryController {
                 .status(HttpStatus.CREATED)
                 .build();
         return new ResponseEntity<>(imageResponse, HttpStatus.CREATED);
+    }
+
+    // serve cover image
+    @GetMapping("/image/{categoryId}")
+    public void serveCoverImage(@PathVariable String categoryId, HttpServletResponse response) throws IOException {
+        CategoryDto category = categoryService.get(categoryId);
+
+        InputStream resource = fileService.getResource(imageUploadPath, category.getCoverImage());
+
+        String extension = category.getCoverImage().substring(category.getCoverImage().lastIndexOf(".")+1);
+        response.setContentType("image/"+extension);
+
+        StreamUtils.copy(resource, response.getOutputStream());
     }
 }
