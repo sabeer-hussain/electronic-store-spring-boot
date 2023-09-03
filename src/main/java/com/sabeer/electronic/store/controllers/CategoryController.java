@@ -1,23 +1,31 @@
 package com.sabeer.electronic.store.controllers;
 
-import com.sabeer.electronic.store.dtos.ApiResponseMessage;
-import com.sabeer.electronic.store.dtos.CategoryDto;
-import com.sabeer.electronic.store.dtos.PageableResponse;
+import com.sabeer.electronic.store.dtos.*;
 import com.sabeer.electronic.store.services.CategoryService;
+import com.sabeer.electronic.store.services.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
 public class CategoryController {
 
+    @Value("${category.profile.image.path}")
+    private String imageUploadPath;
+
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private FileService fileService;
 
     // create
     @PostMapping
@@ -70,5 +78,23 @@ public class CategoryController {
     public ResponseEntity<List<CategoryDto>> searchCategory(@PathVariable String keywords) {
         List<CategoryDto> categoryDtoList = categoryService.search(keywords);
         return new ResponseEntity<>(categoryDtoList, HttpStatus.OK);
+    }
+
+    // upload cover image
+    @PostMapping("/image/{categoryId}")
+    public ResponseEntity<ImageResponse> uploadCategoryCoverImage(@RequestParam("coverImage") MultipartFile image, @PathVariable String categoryId) throws IOException {
+        String imageName = fileService.uploadFile(image, imageUploadPath);
+
+        CategoryDto category = categoryService.get(categoryId);
+        category.setCoverImage(imageName);
+        categoryService.update(category, categoryId);
+
+        ImageResponse imageResponse = ImageResponse.builder()
+                .imageName(imageName)
+                .message("Image is uploaded successfully")
+                .success(true)
+                .status(HttpStatus.CREATED)
+                .build();
+        return new ResponseEntity<>(imageResponse, HttpStatus.CREATED);
     }
 }
