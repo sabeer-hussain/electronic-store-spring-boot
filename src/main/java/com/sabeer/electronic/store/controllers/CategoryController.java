@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/categories")
 public class CategoryController {
 
-    @Value("${category.profile.image.path}")
+    @Value("${category.cover.image.path}")
     private String imageUploadPath;
 
     @Autowired

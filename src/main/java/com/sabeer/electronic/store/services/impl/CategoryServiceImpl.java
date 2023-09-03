@@ -8,19 +8,32 @@ import com.sabeer.electronic.store.helper.Helper;
 import com.sabeer.electronic.store.repositories.CategoryRepository;
 import com.sabeer.electronic.store.services.CategoryService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
+
+    private Logger LOGGER = LoggerFactory.getLogger(CategoryServiceImpl.class);
+
+    @Value("${category.cover.image.path}")
+    private String imagePath;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -58,6 +71,20 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(String categoryId) {
         // get category of given id
         Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException(("Category not found with given id !!")));
+
+        // delete category cover image
+        // images/categories/abc.png
+        String fullPath = imagePath + category.getCoverImage();
+
+        try {
+            Path path = Paths.get(fullPath);
+            Files.delete(path);
+        } catch (NoSuchFileException ex) {
+            LOGGER.error("Category cover image not found in folder");
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
         // delete category
         categoryRepository.delete(category);
