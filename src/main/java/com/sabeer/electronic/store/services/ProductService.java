@@ -29,5 +29,8 @@ public interface ProductService {
     // create product with category
     ProductDto createWithCategory(ProductDto productDto, String categoryId);
 
+    // update category of product
+    ProductDto updateCategory(String productId, String categoryId);
+
     // other methods
 }

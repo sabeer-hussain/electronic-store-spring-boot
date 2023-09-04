@@ -10,7 +10,6 @@ import com.sabeer.electronic.store.repositories.CategoryRepository;
 import com.sabeer.electronic.store.repositories.ProductRepository;
 import com.sabeer.electronic.store.services.ProductService;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,10 +155,18 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProductWithCategory = productRepository.save(product);
 
-        TypeMap<Product, ProductDto> productProductDtoTypeMap =
-                mapper.createTypeMap(Product.class, ProductDto.class)
-                .addMapping(Product::getCategory, ProductDto::setCategoryDto);
+        return mapper.map(savedProductWithCategory, ProductDto.class);
+    }
 
-        return productProductDtoTypeMap.map(savedProductWithCategory);
+    @Override
+    public ProductDto updateCategory(String productId, String categoryId) {
+        // product fetch
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product of given id not found !!"));
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category of given id not found !!"));
+        product.setCategory(category);
+
+        Product updatedProductWithCategory = productRepository.save(product);
+
+        return mapper.map(updatedProductWithCategory, ProductDto.class);
     }
 }
