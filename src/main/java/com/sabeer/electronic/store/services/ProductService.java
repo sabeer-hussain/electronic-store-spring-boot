@@ -32,5 +32,8 @@ public interface ProductService {
     // update category of product
     ProductDto updateCategory(String productId, String categoryId);
 
+    // fetch all products of a category
+    PageableResponse<ProductDto> getAllOfCategory(String categoryId, int pageNumber, int pageSize, String sortBy, String sortDir);
+
     // other methods
 }
