@@ -3,6 +3,7 @@ package com.sabeer.electronic.store.controllers;
 import com.sabeer.electronic.store.dtos.*;
 import com.sabeer.electronic.store.services.CategoryService;
 import com.sabeer.electronic.store.services.FileService;
+import com.sabeer.electronic.store.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,9 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ProductService productService;
 
     @Autowired
     private FileService fileService;
@@ -112,5 +116,33 @@ public class CategoryController {
         response.setContentType("image/"+extension);
 
         StreamUtils.copy(resource, response.getOutputStream());
+    }
+
+    // create product with category
+    @PostMapping("/{categoryId}/products")
+    public ResponseEntity<ProductDto> createProductWithCategory(@PathVariable String categoryId, @RequestBody ProductDto productDto) {
+        ProductDto productDtoWithCategory = productService.createWithCategory(productDto, categoryId);
+        return new ResponseEntity<>(productDtoWithCategory, HttpStatus.CREATED);
+    }
+
+    // update category of product
+    @PutMapping("/{categoryId}/products/{productId}")
+    public ResponseEntity<ProductDto> updateCategoryOfProduct(@PathVariable String categoryId, @PathVariable String productId) {
+        ProductDto productDtoWithCategory = productService.updateCategory(productId, categoryId);
+        return new ResponseEntity<>(productDtoWithCategory, HttpStatus.OK);
+    }
+
+    // get products of a category
+    @GetMapping("/{categoryId}/products")
+    public ResponseEntity<PageableResponse<ProductDto>> getProductsOfCategory(
+            @PathVariable String categoryId,
+            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "title", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir
+
+    ) {
+        PageableResponse<ProductDto> response = productService.getAllOfCategory(categoryId, pageNumber, pageSize, sortBy, sortDir);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
