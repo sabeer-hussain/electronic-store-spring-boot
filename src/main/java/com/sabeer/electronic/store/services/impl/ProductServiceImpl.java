@@ -2,12 +2,15 @@ package com.sabeer.electronic.store.services.impl;
 
 import com.sabeer.electronic.store.dtos.ProductDto;
 import com.sabeer.electronic.store.dtos.PageableResponse;
+import com.sabeer.electronic.store.entities.Category;
 import com.sabeer.electronic.store.entities.Product;
 import com.sabeer.electronic.store.exceptions.ResourceNotFoundException;
 import com.sabeer.electronic.store.helper.Helper;
+import com.sabeer.electronic.store.repositories.CategoryRepository;
 import com.sabeer.electronic.store.repositories.ProductRepository;
 import com.sabeer.electronic.store.services.ProductService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     private ModelMapper mapper;
@@ -128,5 +134,32 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Product> page = productRepository.findByTitleContaining(subTitle, pageable);
         return Helper.getPageableResponse(page, ProductDto.class);
+    }
+
+    @Override
+    public ProductDto createWithCategory(ProductDto productDto, String categoryId) {
+
+        // fetch the category from db
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category not found with given id !!"));
+
+        Product product = mapper.map(productDto, Product.class);
+
+        // creating productId: randomly
+        String productId = UUID.randomUUID().toString();
+        product.setProductId(productId);
+
+        // added date
+        product.setAddedDate(new Date());
+
+        // set category into product
+        product.setCategory(category);
+
+        Product savedProductWithCategory = productRepository.save(product);
+
+        TypeMap<Product, ProductDto> productProductDtoTypeMap =
+                mapper.createTypeMap(Product.class, ProductDto.class)
+                .addMapping(Product::getCategory, ProductDto::setCategoryDto);
+
+        return productProductDtoTypeMap.map(savedProductWithCategory);
     }
 }
