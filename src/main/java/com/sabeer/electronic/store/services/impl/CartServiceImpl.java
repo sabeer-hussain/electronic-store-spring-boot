@@ -8,6 +8,7 @@ import com.sabeer.electronic.store.entities.Product;
 import com.sabeer.electronic.store.entities.User;
 import com.sabeer.electronic.store.exceptions.BadApiRequestException;
 import com.sabeer.electronic.store.exceptions.ResourceNotFoundException;
+import com.sabeer.electronic.store.repositories.CartItemRepository;
 import com.sabeer.electronic.store.repositories.CartRepository;
 import com.sabeer.electronic.store.repositories.ProductRepository;
 import com.sabeer.electronic.store.repositories.UserRepository;
@@ -33,6 +34,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartRepository cartRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     @Autowired
     private ModelMapper mapper;
@@ -106,5 +110,13 @@ public class CartServiceImpl implements CartService {
         Cart savedOrUpdatedCart = cartRepository.save(cart);
 
         return mapper.map(savedOrUpdatedCart, CartDto.class);
+    }
+
+    @Override
+    public void removeItemFromCart(String userId, int cartItemId) {
+        // conditions
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() -> new ResourceNotFoundException("Cart Item not found !!"));
+        cartItemRepository.delete(cartItem);
     }
 }

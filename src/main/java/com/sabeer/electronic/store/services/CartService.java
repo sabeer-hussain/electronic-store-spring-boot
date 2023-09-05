@@ -9,4 +9,7 @@ public interface CartService {
         // case 1: If cart for user is not available, then we will create the cart and then add the items.
         // case 2: If cart for user is available, then we will add the items to cart.
     CartDto addItemToCart(String userId, AddItemToCartRequestDto request);
+
+    // remove item from cart
+    void removeItemFromCart(String userId, int cartItemId);
 }
