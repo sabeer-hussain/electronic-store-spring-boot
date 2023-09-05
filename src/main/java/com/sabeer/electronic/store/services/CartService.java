@@ -12,4 +12,7 @@ public interface CartService {
 
     // remove item from cart
     void removeItemFromCart(String userId, int cartItemId);
+
+    // remove all items from cart
+    void clearCart(String userId);
 }
