@@ -3,6 +3,7 @@ package com.sabeer.electronic.store.services.impl;
 import com.sabeer.electronic.store.dtos.CreateOrderRequestDto;
 import com.sabeer.electronic.store.dtos.OrderDto;
 import com.sabeer.electronic.store.dtos.PageableResponse;
+import com.sabeer.electronic.store.dtos.UpdateOrderRequestDto;
 import com.sabeer.electronic.store.entities.*;
 import com.sabeer.electronic.store.exceptions.BadApiRequestException;
 import com.sabeer.electronic.store.exceptions.ResourceNotFoundException;
@@ -123,5 +124,25 @@ public class OrderServiceImpl implements OrderService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Order> page = orderRepository.findAll(pageable);
         return Helper.getPageableResponse(page, OrderDto.class);
+    }
+
+    @Override
+    public OrderDto updateOrder(UpdateOrderRequestDto updateOrderRequestDto, String orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order is not found !!"));
+
+        // update order
+        order.setBillingName(updateOrderRequestDto.getBillingName());
+        order.setBillingPhone(updateOrderRequestDto.getBillingPhone());
+        order.setBillingAddress(updateOrderRequestDto.getBillingAddress());
+        if ("DELIVERED".equalsIgnoreCase(updateOrderRequestDto.getOrderStatus())) {
+            order.setDeliveredDate(new Date());
+        }
+        order.setPaymentStatus(updateOrderRequestDto.getPaymentStatus());
+        order.setOrderStatus(updateOrderRequestDto.getOrderStatus());
+
+        // update order
+        Order updatedOrder = orderRepository.save(order);
+
+        return modelMapper.map(updatedOrder, OrderDto.class);
     }
 }

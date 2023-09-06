@@ -54,4 +54,11 @@ public class OrderController {
         PageableResponse<OrderDto> orders = orderService.getOrders(pageNumber, pageSize, sortBy, sortDir);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
+
+    // update order
+    @PutMapping("/{orderId}")
+    public ResponseEntity<OrderDto> updateOrder(@PathVariable String orderId, @RequestBody UpdateOrderRequestDto request) {
+        OrderDto updatedOrder = orderService.updateOrder(request, orderId);
+        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+    }
 }
