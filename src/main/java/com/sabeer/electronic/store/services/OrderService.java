@@ -7,4 +7,7 @@ public interface OrderService {
 
     // create order
     OrderDto createOrder(CreateOrderRequestDto createOrderRequestDto);
+
+    // remove order
+    void removeOrder(String orderId);
 }

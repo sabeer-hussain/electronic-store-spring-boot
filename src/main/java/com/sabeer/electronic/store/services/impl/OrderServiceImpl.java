@@ -96,4 +96,10 @@ public class OrderServiceImpl implements OrderService {
 
         return modelMapper.map(savedOrder, OrderDto.class);
     }
+
+    @Override
+    public void removeOrder(String orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order is not found !!"));
+        orderRepository.delete(order);
+    }
 }

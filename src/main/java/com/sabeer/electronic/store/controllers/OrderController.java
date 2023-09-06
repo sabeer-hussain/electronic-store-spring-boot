@@ -22,4 +22,16 @@ public class OrderController {
         OrderDto order = orderService.createOrder(request);
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
+
+    // remove order
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<ApiResponseMessage> removeOrder(@PathVariable String orderId) {
+        orderService.removeOrder(orderId);
+        ApiResponseMessage responseMessage = ApiResponseMessage.builder()
+                .message("Order is removed !!")
+                .status(HttpStatus.OK)
+                .success(true)
+                .build();
+        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+    }
 }
