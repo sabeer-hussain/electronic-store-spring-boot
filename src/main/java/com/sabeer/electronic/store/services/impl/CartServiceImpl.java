@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -80,18 +79,14 @@ public class CartServiceImpl implements CartService {
         // if cart item already present, then update
         AtomicReference<Boolean> updated = new AtomicReference<>(false);
         List<CartItem> items = cart.getItems();
-        List<CartItem> updatedItems = items.stream().map(item -> {
+        items.stream().forEach(item -> {
             if (item.getProduct().getProductId().equals(productId)) {
                 // item already present in cart
                 item.setQuantity(quantity);
                 item.setTotalPrice(quantity * product.getDiscountedPrice());
                 updated.set(true);
-                return item;
             }
-            return item;
-        }).collect(Collectors.toList());
-
-        cart.setItems(updatedItems);
+        });
 
         // create items
         if (!updated.get()) {
