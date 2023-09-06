@@ -42,4 +42,16 @@ public class OrderController {
         List<OrderDto> orders = orderService.getOrdersOfUser(userId);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
+
+    // get all orders
+    @GetMapping
+    public ResponseEntity<PageableResponse<OrderDto>> getAllOrders(
+            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "orderedDate", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "desc", required = false) String sortDir
+    ) {
+        PageableResponse<OrderDto> orders = orderService.getOrders(pageNumber, pageSize, sortBy, sortDir);
+        return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
 }

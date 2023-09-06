@@ -2,15 +2,21 @@ package com.sabeer.electronic.store.services.impl;
 
 import com.sabeer.electronic.store.dtos.CreateOrderRequestDto;
 import com.sabeer.electronic.store.dtos.OrderDto;
+import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.entities.*;
 import com.sabeer.electronic.store.exceptions.BadApiRequestException;
 import com.sabeer.electronic.store.exceptions.ResourceNotFoundException;
+import com.sabeer.electronic.store.helper.Helper;
 import com.sabeer.electronic.store.repositories.CartRepository;
 import com.sabeer.electronic.store.repositories.OrderRepository;
 import com.sabeer.electronic.store.repositories.UserRepository;
 import com.sabeer.electronic.store.services.OrderService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -109,5 +115,13 @@ public class OrderServiceImpl implements OrderService {
         List<Order> orders = orderRepository.findByUser(user);
         List<OrderDto> orderDtos = orders.stream().map(order -> modelMapper.map(order, OrderDto.class)).collect(Collectors.toList());
         return orderDtos;
+    }
+
+    @Override
+    public PageableResponse<OrderDto> getOrders(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Order> page = orderRepository.findAll(pageable);
+        return Helper.getPageableResponse(page, OrderDto.class);
     }
 }
