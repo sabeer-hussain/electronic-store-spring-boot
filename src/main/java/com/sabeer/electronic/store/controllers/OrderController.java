@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -33,5 +34,12 @@ public class OrderController {
                 .success(true)
                 .build();
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+    }
+
+    // get orders of the user
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<OrderDto>> getOrdersOfUser(@PathVariable String userId) {
+        List<OrderDto> orders = orderService.getOrdersOfUser(userId);
+        return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 }
