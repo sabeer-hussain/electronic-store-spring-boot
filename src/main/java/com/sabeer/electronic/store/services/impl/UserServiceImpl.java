@@ -16,7 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,11 +43,16 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UserDto createUser(UserDto userDto) {
         // generate unique id in string format
         String userId = UUID.randomUUID().toString();
         userDto.setUserId(userId);
+        // encoding password
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         // dto -> entity
 //        User user = dtoToEntity(userDto);
@@ -63,7 +70,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with given id !!"));
         user.setName(userDto.getName());
         // email update
-        user.setPassword(userDto.getPassword());
+
+        // encoding password
+        if (StringUtils.hasText(userDto.getPassword())) {
+            userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
         user.setAbout(userDto.getAbout());
         user.setGender(userDto.getGender());
         user.setImageName(userDto.getImageName());

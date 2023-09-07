@@ -1,7 +1,10 @@
 package com.sabeer.electronic.store.config;
 
+import com.sabeer.electronic.store.services.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,7 +15,11 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @Configuration
 public class SecurityConfig {
 
+    @Autowired
+    private UserDetailsService userDetailsService;
+
     // User hardcoding : In-Memory Authentication
+    /*
     @Bean
     public UserDetailsService userDetailsService() {
         // users create
@@ -30,6 +37,16 @@ public class SecurityConfig {
 
 //        InMemoryUserDetailsManager - is implementation class of UserDetailService
         return new InMemoryUserDetailsManager(normalUser, adminUser);
+    }
+     */
+
+    // Database Authentication
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        return daoAuthenticationProvider;
     }
 
     @Bean
