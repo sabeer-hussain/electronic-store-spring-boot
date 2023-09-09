@@ -6,6 +6,7 @@ import com.sabeer.electronic.store.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -99,6 +100,8 @@ public class SecurityConfig {
             .disable()
             .authorizeRequests()
             .antMatchers("/auth/login")
+            .permitAll()
+            .antMatchers(HttpMethod.POST, "/users")
             .permitAll()
             .anyRequest()
             .authenticated()

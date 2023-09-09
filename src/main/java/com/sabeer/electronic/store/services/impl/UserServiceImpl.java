@@ -2,9 +2,11 @@ package com.sabeer.electronic.store.services.impl;
 
 import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.UserDto;
+import com.sabeer.electronic.store.entities.Role;
 import com.sabeer.electronic.store.entities.User;
 import com.sabeer.electronic.store.exceptions.ResourceNotFoundException;
 import com.sabeer.electronic.store.helper.Helper;
+import com.sabeer.electronic.store.repositories.RoleRepository;
 import com.sabeer.electronic.store.repositories.UserRepository;
 import com.sabeer.electronic.store.services.UserService;
 import org.modelmapper.ModelMapper;
@@ -37,8 +39,14 @@ public class UserServiceImpl implements UserService {
     @Value("${user.profile.image.path}")
     private String imagePath;
 
+    @Value("${normal.role.id}")
+    private String normalRoleId;
+
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -57,6 +65,11 @@ public class UserServiceImpl implements UserService {
         // dto -> entity
 //        User user = dtoToEntity(userDto);
         User user = modelMapper.map(userDto, User.class);
+
+        // fetch role of normal user and set it to user
+        Role role = roleRepository.findById(normalRoleId).get();
+        user.getRoles().add(role);
+
         User savedUser = userRepository.save(user);
 
         // entity -> dto
