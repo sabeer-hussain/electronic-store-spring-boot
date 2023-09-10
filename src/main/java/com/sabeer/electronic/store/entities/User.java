@@ -48,6 +48,8 @@ public class User implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Role> roles = new HashSet<>();
 
+//    private String provider;
+
     // must have to implement
     // TODO:
     @Override
