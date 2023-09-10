@@ -4,6 +4,7 @@ import com.sabeer.electronic.store.security.JwtAuthenticationEntryPoint;
 import com.sabeer.electronic.store.security.JwtAuthenticationFilter;
 import com.sabeer.electronic.store.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -139,5 +145,28 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    // CORS Configuration
+    @Bean
+    public FilterRegistrationBean corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowCredentials(true);
+//        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        corsConfiguration.addAllowedOriginPattern("*");
+        corsConfiguration.addAllowedHeader("Authorization");
+        corsConfiguration.addAllowedHeader("Content-Type");
+        corsConfiguration.addAllowedHeader("Accept");
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
+        corsConfiguration.setMaxAge(3600L);
+
+        source.registerCorsConfiguration("/**", corsConfiguration);
+
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new CorsFilter(source));
+//        filterRegistrationBean.setOrder(-5);
+
+        return filterRegistrationBean;
     }
 }

@@ -34,12 +34,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(
-        origins = "http://localhost:4200",
-        allowedHeaders = {"Authorization"},
-        methods = {RequestMethod.GET, RequestMethod.POST},
-        maxAge = 3600
-)
+//@CrossOrigin(
+//        origins = "http://localhost:4200",
+//        allowedHeaders = {"Authorization"},
+//        methods = {RequestMethod.GET, RequestMethod.POST},
+//        maxAge = 3600
+//)
 public class AuthController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
