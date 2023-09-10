@@ -104,8 +104,9 @@ public class SecurityConfig {
         http
             .csrf()
             .disable()
-            .cors()
-            .disable()
+//            .cors()
+//            .disable()
+//            .and()
             .authorizeRequests()
             .antMatchers("/auth/login")
             .permitAll()
@@ -165,7 +166,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", corsConfiguration);
 
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new CorsFilter(source));
-//        filterRegistrationBean.setOrder(-5);
+        filterRegistrationBean.setOrder(-100);
 
         return filterRegistrationBean;
     }
