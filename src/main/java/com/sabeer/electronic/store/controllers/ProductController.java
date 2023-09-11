@@ -20,8 +20,8 @@ import java.io.InputStream;
 
 @RestController
 @RequestMapping("/products")
-@Api(value = "ProductController", description = "REST APIs related to perform product operations !!")
 //@CrossOrigin(origins = "*")
+@Api(value = "ProductController", description = "REST APIs related to perform product operations !!")
 public class ProductController {
 
     @Value("${product.image.path}")
