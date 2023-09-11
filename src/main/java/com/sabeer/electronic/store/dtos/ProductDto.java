@@ -31,5 +31,5 @@ public class ProductDto {
 
     private String productImageName;
 
-    private CategoryDto categoryDto;
+    private CategoryDto category;
 }
