@@ -4,6 +4,7 @@ import com.sabeer.electronic.store.dtos.*;
 import com.sabeer.electronic.store.services.CategoryService;
 import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.ProductService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
+@Api(value = "CategoryController", description = "REST APIs related to perform category operations !!")
 public class CategoryController {
 
     @Value("${category.cover.image.path}")

@@ -34,6 +34,14 @@ import java.util.Arrays;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
+    private final String[] PUBLIC_URLS = {
+        "/swagger-ui/**",
+        "/webjars/**",
+        "/swagger-resources/**",
+        "/v3/api-docs",
+        "/v2/api-docs"
+    };
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -115,6 +123,8 @@ public class SecurityConfig {
             .antMatchers(HttpMethod.POST, "/users")
             .permitAll()
             .antMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
+            .antMatchers(PUBLIC_URLS)
+            .permitAll()
             .anyRequest()
             .authenticated()
             .and()
