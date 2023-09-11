@@ -2,9 +2,11 @@ package com.sabeer.electronic.store.services.impl;
 
 import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.UserDto;
+import com.sabeer.electronic.store.entities.Role;
 import com.sabeer.electronic.store.entities.User;
 import com.sabeer.electronic.store.exceptions.ResourceNotFoundException;
 import com.sabeer.electronic.store.helper.Helper;
+import com.sabeer.electronic.store.repositories.RoleRepository;
 import com.sabeer.electronic.store.repositories.UserRepository;
 import com.sabeer.electronic.store.services.UserService;
 import org.modelmapper.ModelMapper;
@@ -16,7 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +28,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,21 +40,37 @@ public class UserServiceImpl implements UserService {
     @Value("${user.profile.image.path}")
     private String imagePath;
 
+    @Value("${normal.role.id}")
+    private String normalRoleId;
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto createUser(UserDto userDto) {
         // generate unique id in string format
         String userId = UUID.randomUUID().toString();
         userDto.setUserId(userId);
+        // encoding password
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         // dto -> entity
 //        User user = dtoToEntity(userDto);
         User user = modelMapper.map(userDto, User.class);
+
+        // fetch role of normal user and set it to user
+        Role role = roleRepository.findById(normalRoleId).get();
+        user.getRoles().add(role);
+
         User savedUser = userRepository.save(user);
 
         // entity -> dto
@@ -63,7 +84,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with given id !!"));
         user.setName(userDto.getName());
         // email update
-        user.setPassword(userDto.getPassword());
+
+        // encoding password
+        if (StringUtils.hasText(userDto.getPassword())) {
+            userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
         user.setAbout(userDto.getAbout());
         user.setGender(userDto.getGender());
         user.setImageName(userDto.getImageName());
@@ -142,6 +167,11 @@ public class UserServiceImpl implements UserService {
 //        List<UserDto> dtoList = users.stream().map(user -> entityToDto(user)).collect(Collectors.toList());
         List<UserDto> dtoList = users.stream().map(user -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList());
         return dtoList;
+    }
+
+    @Override
+    public Optional<User> findUserByEmailOptional(String email) {
+        return userRepository.findByEmail(email);
     }
 
     private UserDto entityToDto(User savedUser) {

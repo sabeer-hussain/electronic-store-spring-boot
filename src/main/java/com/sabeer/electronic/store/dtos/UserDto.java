@@ -7,6 +7,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -36,4 +38,8 @@ public class UserDto {
 //    Custom validator
     @ImageNameValid
     private String imageName;
+
+    private Set<RoleDto> roles = new HashSet<>();
+
+//    private String provider;
 }
