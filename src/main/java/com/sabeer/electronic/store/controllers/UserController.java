@@ -24,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+//@CrossOrigin("*")
 public class UserController {
 
     private Logger LOGGER = LoggerFactory.getLogger(UserController.class);
