@@ -1,5 +1,6 @@
 package com.sabeer.electronic.store.services;
 
+import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.UserDto;
 import com.sabeer.electronic.store.entities.Role;
 import com.sabeer.electronic.store.entities.User;
@@ -15,10 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -155,5 +160,70 @@ public class UserServiceTest {
         userService.deleteUser(userId);
 
         Mockito.verify(userRepository, Mockito.times(1)).delete(user);
+    }
+
+    // get all users
+    @Test
+    public void getAllUsersTest() {
+        User user1 = User.builder()
+                .name("Ankit")
+                .email("ankit@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("This is testing create method")
+                .imageName("abc.png")
+                .roles(Set.of(role))
+                .build();
+
+        User user2 = User.builder()
+                .name("Uttam")
+                .email("uttam@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("This is testing create method")
+                .imageName("abc.png")
+                .roles(Set.of(role))
+                .build();
+
+        List<User> userList = List.of(user, user1, user2);
+        Page<User> page = new PageImpl<>(userList);
+
+        Mockito.when(userRepository.findAll(Mockito.any(Pageable.class))).thenReturn(page);
+
+        PageableResponse<UserDto> allUsers = userService.getAllUsers(1, 2, "name", "asc");
+
+        Assertions.assertEquals(3, allUsers.getContent().size());
+    }
+
+    @Test
+    public void getAllUsers_SortByByNameInDescending_Test() {
+        User user1 = User.builder()
+                .name("Ankit")
+                .email("ankit@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("This is testing create method")
+                .imageName("abc.png")
+                .roles(Set.of(role))
+                .build();
+
+        User user2 = User.builder()
+                .name("Uttam")
+                .email("uttam@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("This is testing create method")
+                .imageName("abc.png")
+                .roles(Set.of(role))
+                .build();
+
+        List<User> userList = List.of(user, user1, user2);
+        Page<User> page = new PageImpl<>(userList);
+
+        Mockito.when(userRepository.findAll(Mockito.any(Pageable.class))).thenReturn(page);
+
+        PageableResponse<UserDto> allUsers = userService.getAllUsers(1, 2, "name", "desc");
+
+        Assertions.assertEquals(3, allUsers.getContent().size());
     }
 }
