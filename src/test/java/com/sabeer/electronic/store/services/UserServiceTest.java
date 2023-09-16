@@ -309,4 +309,18 @@ public class UserServiceTest {
 
         Assertions.assertEquals(4, userDtos.size(), "Size not matched !!");
     }
+
+    // find user by email test case
+    @Test
+    public void findUserByEmailOptionalTest() {
+        String email = "sabeer@gmail.com";
+
+        Mockito.when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        Optional<User> userByEmailOptional = userService.findUserByEmailOptional(email);
+
+        Assertions.assertTrue(userByEmailOptional.isPresent());
+        User user1 = userByEmailOptional.get();
+        Assertions.assertEquals(user.getEmail(), user1.getEmail(), "email does not matched !!");
+    }
 }
