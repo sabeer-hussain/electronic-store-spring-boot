@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
         // encoding password
         if (StringUtils.hasText(userDto.getPassword())) {
-            userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
         user.setAbout(userDto.getAbout());
         user.setGender(userDto.getGender());

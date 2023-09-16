@@ -3,6 +3,7 @@ package com.sabeer.electronic.store.services;
 import com.sabeer.electronic.store.dtos.UserDto;
 import com.sabeer.electronic.store.entities.Role;
 import com.sabeer.electronic.store.entities.User;
+import com.sabeer.electronic.store.exceptions.ResourceNotFoundException;
 import com.sabeer.electronic.store.repositories.RoleRepository;
 import com.sabeer.electronic.store.repositories.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -65,5 +66,40 @@ public class UserServiceTest {
 
         Assertions.assertNotNull(createdUser);
         Assertions.assertEquals("Sabeer", createdUser.getName());
+    }
+
+    // update user test
+    @Test
+    public void updateUserTest() {
+        String userId = "123";
+
+        UserDto userDto = UserDto.builder()
+                .name("Sabeer Hussain")
+                .password("lcwd_new")
+                .gender("Male")
+                .about("This is updated user about details")
+                .imageName("xyz.png")
+                .build();
+
+        Mockito.when(userRepository.findById(Mockito.anyString())).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
+
+        UserDto updatedUser = userService.updateUser(userDto, userId);
+        System.out.println(updatedUser.getName());
+        System.out.println(updatedUser.getImageName());
+
+        Assertions.assertNotNull(updatedUser);
+        Assertions.assertEquals(userDto.getName(), updatedUser.getName(), "Name is not validated !!");
+        Assertions.assertEquals(userDto.getImageName(), updatedUser.getImageName());
+        // multiple assertions are valid..
+    }
+
+    @Test
+    public void updateUser_ResourceNotFoundException_Test() {
+        String userId = "123";
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(mapper.map(user, UserDto.class), userId));
     }
 }
