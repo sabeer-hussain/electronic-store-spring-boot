@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -61,7 +62,7 @@ public class UserServiceTest {
                 .password("abcd")
                 .gender("Male")
                 .about("This is testing create method")
-                .imageName("abc.png")
+                .imageName("user_abc.png")
                 .roles(Set.of(role))
                 .build();
     }
@@ -90,7 +91,7 @@ public class UserServiceTest {
                 .password("lcwd_new")
                 .gender("Male")
                 .about("This is updated user about details")
-                .imageName("xyz.png")
+                .imageName("user_xyz.png")
                 .build();
 
         Mockito.when(userRepository.findById(Mockito.anyString())).thenReturn(Optional.of(user));
@@ -128,8 +129,8 @@ public class UserServiceTest {
             folder.mkdirs();
         }
         FileSystem fileSys = FileSystems.getDefault();
-        Path originalFilePath = fileSys.getPath(imagePath +"/abc.png");
-        Path tempFilePath = fileSys.getPath(imagePath + "/temp.png");
+        Path originalFilePath = fileSys.getPath(imagePath +"/user_abc.png");
+        Path tempFilePath = fileSys.getPath(imagePath + "/user_temp.png");
         Files.copy(originalFilePath, tempFilePath);
 
         userService.deleteUser(userId);
@@ -153,7 +154,7 @@ public class UserServiceTest {
     public void deleteUser_NoSuchFileException_Test() {
         String userId = "userIdabc";
 
-        user.setImageName("xyz.png");
+        user.setImageName("user_xyz.png");
         Mockito.when(userRepository.findById("userIdabc")).thenReturn(Optional.of(user));
 //        Mockito.doNothing().when(userRepository).delete(Mockito.any());
 
@@ -171,7 +172,7 @@ public class UserServiceTest {
                 .password("abcd")
                 .gender("Male")
                 .about("This is testing create method")
-                .imageName("abc.png")
+                .imageName("user_abc.png")
                 .roles(Set.of(role))
                 .build();
 
@@ -181,7 +182,7 @@ public class UserServiceTest {
                 .password("abcd")
                 .gender("Male")
                 .about("This is testing create method")
-                .imageName("abc.png")
+                .imageName("user_abc.png")
                 .roles(Set.of(role))
                 .build();
 
@@ -203,7 +204,7 @@ public class UserServiceTest {
                 .password("abcd")
                 .gender("Male")
                 .about("This is testing create method")
-                .imageName("abc.png")
+                .imageName("user_def.png")
                 .roles(Set.of(role))
                 .build();
 
@@ -213,7 +214,7 @@ public class UserServiceTest {
                 .password("abcd")
                 .gender("Male")
                 .about("This is testing create method")
-                .imageName("abc.png")
+                .imageName("user_ghi.png")
                 .roles(Set.of(role))
                 .build();
 
@@ -266,5 +267,46 @@ public class UserServiceTest {
 //        Mockito.when(userRepository.findByEmail(Mockito.any())).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> userService.getUserByEmail("sabeer@gmail.com"));
+    }
+
+    // search user test case
+    @Test
+    public void searchUserTest() {
+        User user1 = User.builder()
+                .name("Ankit Kumar")
+                .email("ankit@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("This is testing create method")
+                .imageName("user_def.png")
+                .roles(Set.of(role))
+                .build();
+
+        User user2 = User.builder()
+                .name("Uttam Kumar")
+                .email("uttam@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("This is testing create method")
+                .imageName("user_ghi.png")
+                .roles(Set.of(role))
+                .build();
+
+        User user3 = User.builder()
+                .name("Pankaj Kumar")
+                .email("pankaj@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("This is testing create method")
+                .imageName("user_jkl.png")
+                .roles(Set.of(role))
+                .build();
+
+        String keywords = "Kumar";
+        Mockito.when(userRepository.findByNameContaining(keywords)).thenReturn(Arrays.asList(user, user1, user2, user3));
+
+        List<UserDto> userDtos = userService.searchUser(keywords);
+
+        Assertions.assertEquals(4, userDtos.size(), "Size not matched !!");
     }
 }
