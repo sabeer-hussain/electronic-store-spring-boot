@@ -12,9 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.Optional;
 import java.util.Set;
 
@@ -36,6 +40,9 @@ public class UserServiceTest {
     private User user;
 
     private Role role;
+
+    @Value("${user.profile.image.path}")
+    private String imagePath;
 
     @BeforeEach
     public void init() {
@@ -98,8 +105,55 @@ public class UserServiceTest {
     public void updateUser_ResourceNotFoundException_Test() {
         String userId = "123";
 
-        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+//        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> userService.updateUser(mapper.map(user, UserDto.class), userId));
+    }
+
+    // delete user test case
+    @Test
+    public void deleteUserTest() throws IOException {
+        String userId = "userIdabc";
+
+        Mockito.when(userRepository.findById("userIdabc")).thenReturn(Optional.of(user));
+//        Mockito.doNothing().when(userRepository).delete(Mockito.any());
+
+        File folder = new File(imagePath);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        FileSystem fileSys = FileSystems.getDefault();
+        Path originalFilePath = fileSys.getPath(imagePath +"/abc.png");
+        Path tempFilePath = fileSys.getPath(imagePath + "/temp.png");
+        Files.copy(originalFilePath, tempFilePath);
+
+        userService.deleteUser(userId);
+
+        Mockito.verify(userRepository, Mockito.times(1)).delete(user);
+
+        Files.copy(tempFilePath, originalFilePath);
+        Files.delete(tempFilePath);
+    }
+
+    @Test
+    public void deleteUser_ResourceNotFoundException_Test() {
+        String userId = "userIdabc";
+
+//        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> userService.deleteUser(userId));
+    }
+
+    @Test
+    public void deleteUser_NoSuchFileException_Test() {
+        String userId = "userIdabc";
+
+        user.setImageName("xyz.png");
+        Mockito.when(userRepository.findById("userIdabc")).thenReturn(Optional.of(user));
+//        Mockito.doNothing().when(userRepository).delete(Mockito.any());
+
+        userService.deleteUser(userId);
+
+        Mockito.verify(userRepository, Mockito.times(1)).delete(user);
     }
 }
