@@ -226,4 +226,25 @@ public class UserServiceTest {
 
         Assertions.assertEquals(3, allUsers.getContent().size());
     }
+
+    // get user by id test case
+    @Test
+    public void getUserByIdTest() {
+        String userId = "userIdTest";
+
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // actual call of service method
+        UserDto userDto = userService.getUserById(userId);
+
+        Assertions.assertNotNull(userDto);
+        Assertions.assertEquals(user.getName(), userDto.getName(), "Name not matched !!");
+    }
+
+    @Test
+    public void getUserById_ResourceNotFoundException_Test() {
+//        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> userService.getUserById("123"));
+    }
 }
