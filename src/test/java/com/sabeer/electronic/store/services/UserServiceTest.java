@@ -247,4 +247,24 @@ public class UserServiceTest {
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> userService.getUserById("123"));
     }
+
+    // get user by email test case
+    @Test
+    public void getUserByEmailTest() {
+        String emailId = "sabeer@gmail.com";
+
+        Mockito.when(userRepository.findByEmail(emailId)).thenReturn(Optional.of(user));
+
+        UserDto userDto = userService.getUserByEmail(emailId);
+
+        Assertions.assertNotNull(userDto);
+        Assertions.assertEquals(user.getEmail(), userDto.getEmail(), "Email not matched !!");
+    }
+
+    @Test
+    public void getUserByEmail_ResourceNotFoundException_Test() {
+//        Mockito.when(userRepository.findByEmail(Mockito.any())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> userService.getUserByEmail("sabeer@gmail.com"));
+    }
 }
