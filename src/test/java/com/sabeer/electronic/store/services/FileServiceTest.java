@@ -37,7 +37,7 @@ public class FileServiceTest {
 
         MultipartFile multipartFile = new MockMultipartFile(name, originalFileName, contentType, content);
 
-        String uploadedFileName = fileService.uploadFile(multipartFile, name);
+        String uploadedFileName = fileService.uploadFile(multipartFile, imagePath);
 
         Assertions.assertTrue(uploadedFileName.endsWith(".png"));
     }
@@ -55,7 +55,7 @@ public class FileServiceTest {
 
         MultipartFile multipartFile = new MockMultipartFile(name, originalFileName, contentType, content);
 
-        Assertions.assertThrows(BadApiRequestException.class, () -> fileService.uploadFile(multipartFile, name));
+        Assertions.assertThrows(BadApiRequestException.class, () -> fileService.uploadFile(multipartFile, imagePath));
 
     }
 
