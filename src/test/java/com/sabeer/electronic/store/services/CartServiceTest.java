@@ -49,9 +49,6 @@ public class CartServiceTest {
 
     private CartItem cartItem;
 
-    @Value("${product.image.path}")
-    private String imagePath;
-
     @BeforeEach
     public void init() {
         role = Role.builder()
