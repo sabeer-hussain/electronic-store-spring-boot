@@ -165,13 +165,13 @@ public class CategoryServiceTest {
 
         Mockito.when(categoryRepository.findAll(Mockito.any(Pageable.class))).thenReturn(page);
 
-        PageableResponse<CategoryDto> allCategories = categoryService.getAll(1, 2, "name", "asc");
+        PageableResponse<CategoryDto> allCategories = categoryService.getAll(1, 2, "title", "asc");
 
         Assertions.assertEquals(3, allCategories.getContent().size());
     }
 
     @Test
-    public void getAllCategories_SortByByNameInDescending_Test() {
+    public void getAllCategories_SortByByTitleInDescending_Test() {
         Category category1 = Category.builder()
                 .title("Laptop")
                 .description("This is laptop category")
@@ -189,7 +189,7 @@ public class CategoryServiceTest {
 
         Mockito.when(categoryRepository.findAll(Mockito.any(Pageable.class))).thenReturn(page);
 
-        PageableResponse<CategoryDto> allCategories = categoryService.getAll(1, 2, "name", "desc");
+        PageableResponse<CategoryDto> allCategories = categoryService.getAll(1, 2, "title", "desc");
 
         Assertions.assertEquals(3, allCategories.getContent().size());
     }
