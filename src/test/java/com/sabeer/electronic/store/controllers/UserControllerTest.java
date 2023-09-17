@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -84,6 +85,28 @@ public class UserControllerTest {
                             .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").exists());
+    }
+
+    @Test
+    public void updateUserTest() throws Exception {
+//        /users/{userId} + PUT + user data as json
+//        response: data as json + status ok
+
+        String userId = "123";
+        UserDto userDto = mapper.map(user, UserDto.class);
+        Mockito.when(userService.updateUser(Mockito.any(), Mockito.anyString())).thenReturn(userDto);
+
+        // actual request for url
+        this.mockMvc
+                .perform(MockMvcRequestBuilders
+                        .put("/users/" + userId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkdXJnZXNoQGRldi5pbiIsImlhdCI6MTY5NDk2MTQwNSwiZXhwIjoxNjk0OTc5NDA1fQ.Z1wqRM_Zsgyw1s-UDXwYMyP0cBpugRT3ZVdkGx7f9pxeam3o8REhSr163QbENgnzikvR12D-kg4sn5gIfinlGQ")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(convertObjectToJsonString(user))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").exists());
     }
 
