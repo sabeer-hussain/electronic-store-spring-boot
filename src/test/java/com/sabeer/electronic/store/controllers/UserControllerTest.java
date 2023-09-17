@@ -1,6 +1,7 @@
 package com.sabeer.electronic.store.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.UserDto;
 import com.sabeer.electronic.store.entities.Role;
 import com.sabeer.electronic.store.entities.User;
@@ -18,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -108,6 +110,34 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").exists());
+    }
+
+    // get all users : testing
+    @Test
+    public void getAllUsersTest() throws Exception {
+        UserDto userDto1 = UserDto.builder().name("Durgesh").email("durgesh@gmail.com").password("durgesh").gender("Male").about("Testing").imageName("user_def.png").build();
+        UserDto userDto2 = UserDto.builder().name("Amit").email("amit@gmail.com").password("amit").gender("Male").about("Testing").imageName("user_ghi.png").build();
+        UserDto userDto3 = UserDto.builder().name("Sumit").email("sumit@gmail.com").password("sumit").gender("Male").about("Testing").imageName("user_jkl.png").build();
+        UserDto userDto4 = UserDto.builder().name("Ankit").email("ankit@gmail.com").password("ankit").gender("Male").about("Testing").imageName("user_mno.png").build();
+
+        PageableResponse<UserDto> pageableResponse = new PageableResponse<>();
+        pageableResponse.setContent(Arrays.asList(userDto1, userDto2, userDto3, userDto4));
+        pageableResponse.setPageNumber(100);
+        pageableResponse.setPageSize(10);
+        pageableResponse.setTotalElements(10000);
+        pageableResponse.setTotalPages(1000);
+        pageableResponse.setLastPage(false);
+        Mockito.when(userService.getAllUsers(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(pageableResponse);
+
+        this.mockMvc
+                .perform(MockMvcRequestBuilders
+                        .get("/users")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkdXJnZXNoQGRldi5pbiIsImlhdCI6MTY5NDk2MTQwNSwiZXhwIjoxNjk0OTc5NDA1fQ.Z1wqRM_Zsgyw1s-UDXwYMyP0cBpugRT3ZVdkGx7f9pxeam3o8REhSr163QbENgnzikvR12D-kg4sn5gIfinlGQ")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].name").exists());
     }
 
     private String convertObjectToJsonString(Object user) {
