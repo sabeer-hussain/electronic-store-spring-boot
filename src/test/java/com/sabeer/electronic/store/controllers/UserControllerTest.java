@@ -2,15 +2,13 @@ package com.sabeer.electronic.store.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sabeer.electronic.store.dtos.PageableResponse;
+import com.sabeer.electronic.store.dtos.RoleDto;
 import com.sabeer.electronic.store.dtos.UserDto;
-import com.sabeer.electronic.store.entities.Role;
-import com.sabeer.electronic.store.entities.User;
 import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -45,12 +43,7 @@ public class UserControllerTest {
     @MockBean
     private FileService fileService;
 
-    @Autowired
-    private ModelMapper mapper;
-
-    private User user;
-
-    private Role role;
+    private UserDto userDto;
 
     @Value("${user.profile.image.path}")
     private String imagePath;
@@ -60,11 +53,11 @@ public class UserControllerTest {
 
     @BeforeEach
     public void init() {
-        role = Role.builder()
+        RoleDto role = RoleDto.builder()
                 .roleName("abc")
                 .roleName("NORMAL")
                 .build();
-        user = User.builder()
+        userDto = UserDto.builder()
                 .name("Sabeer Hussain")
                 .email("msabeerhussain007@gmail.com")
                 .password("abcd")
@@ -80,7 +73,6 @@ public class UserControllerTest {
 //        /users + POST + user data as json
 //        response: data as json + status created
 
-        UserDto userDto = mapper.map(user, UserDto.class);
         Mockito.when(userService.createUser(Mockito.any())).thenReturn(userDto);
 
         // actual request for url
@@ -88,7 +80,7 @@ public class UserControllerTest {
                 .perform(MockMvcRequestBuilders
                         .post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(convertObjectToJsonString(user))
+                        .content(convertObjectToJsonString(userDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
@@ -101,7 +93,6 @@ public class UserControllerTest {
 //        response: data as json + status ok
 
         String userId = "123";
-        UserDto userDto = mapper.map(user, UserDto.class);
         Mockito.when(userService.updateUser(Mockito.any(), Mockito.anyString())).thenReturn(userDto);
 
         // actual request for url
@@ -110,7 +101,7 @@ public class UserControllerTest {
                         .put("/users/" + userId)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtc2FiZWVyaHVzc2FpbjAwN0BnbWFpbC5jb20iLCJpYXQiOjE2OTQ5NjY1OTgsImV4cCI6MTY5NDk4NDU5OH0.pjsyYMbxOneNF36OJlgOZ_uaf1ARC1ulVyhmtOmSgRmE31iPkV5KAMNdrnRZjY1L1wArK_VAg9m7OrF_Qw9srw")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(convertObjectToJsonString(user))
+                        .content(convertObjectToJsonString(userDto))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -165,7 +156,7 @@ public class UserControllerTest {
     @Test
     public void getUserTest() throws Exception {
         String userId = "123";
-        Mockito.when(userService.getUserById(Mockito.anyString())).thenReturn(mapper.map(user, UserDto.class));
+        Mockito.when(userService.getUserById(Mockito.anyString())).thenReturn(userDto);
 
         // actual request for url
         this.mockMvc
@@ -182,7 +173,7 @@ public class UserControllerTest {
     @Test
     public void getUserByEmailTest() throws Exception {
         String email = "durgesh@dev.in";
-        Mockito.when(userService.getUserByEmail(Mockito.anyString())).thenReturn(mapper.map(user, UserDto.class));
+        Mockito.when(userService.getUserByEmail(Mockito.anyString())).thenReturn(userDto);
 
         // actual request for url
         this.mockMvc
