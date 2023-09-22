@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sabeer.electronic.store.dtos.CategoryDto;
 import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.ProductDto;
+import com.sabeer.electronic.store.entities.Role;
+import com.sabeer.electronic.store.entities.User;
+import com.sabeer.electronic.store.security.JwtHelper;
 import com.sabeer.electronic.store.services.CategoryService;
 import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.ProductService;
@@ -18,6 +21,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,6 +53,9 @@ public class CategoryControllerTest {
 
     @MockBean
     private FileService fileService;
+
+    @MockBean
+    private JwtHelper jwtHelper;
 
     private CategoryDto categoryDto;
 
@@ -80,6 +91,8 @@ public class CategoryControllerTest {
 //        /categories + POST + category data as json
 //        response: data as json + status created
 
+        mockSecurity();
+
         Mockito.when(categoryService.create(Mockito.any())).thenReturn(categoryDto);
 
         // actual request for url
@@ -100,6 +113,8 @@ public class CategoryControllerTest {
 //        /categories/{categoryId} + PUT + category data as json
 //        response: data as json + status ok
 
+        mockSecurity();
+
         String categoryId = "123";
         Mockito.when(categoryService.update(Mockito.any(), Mockito.anyString())).thenReturn(categoryDto);
 
@@ -118,6 +133,8 @@ public class CategoryControllerTest {
 
     @Test
     public void deleteCategoryTest() throws Exception {
+        mockSecurity();
+
         String categoryId = "123";
         Mockito.doNothing().when(categoryService).delete(Mockito.anyString());
 
@@ -136,6 +153,8 @@ public class CategoryControllerTest {
     // get all categories : testing
     @Test
     public void getAllCategoriesTest() throws Exception {
+        mockSecurity();
+
         CategoryDto categoryDto1 = CategoryDto.builder().title("Laptop").description("This is laptop category").coverImage("category_def.png").build();
         CategoryDto categoryDto2 = CategoryDto.builder().title("Electronics").description("This is electronics category").coverImage("category_ghi.png").build();
         CategoryDto categoryDto3 = CategoryDto.builder().title("Headphones").description("This is headphones category").coverImage("category_jkl.png").build();
@@ -163,6 +182,8 @@ public class CategoryControllerTest {
 
     @Test
     public void getCategoryTest() throws Exception {
+        mockSecurity();
+
         String categoryId = "123";
         Mockito.when(categoryService.get(Mockito.anyString())).thenReturn(categoryDto);
 
@@ -180,6 +201,8 @@ public class CategoryControllerTest {
 
     @Test
     public void searchCategoryTest() throws Exception {
+        mockSecurity();
+
         String keywords = "phone";
         List<CategoryDto> categoryDtoList = List.of(categoryDto);
         Mockito.when(categoryService.search(Mockito.anyString())).thenReturn(categoryDtoList);
@@ -198,6 +221,8 @@ public class CategoryControllerTest {
 
     @Test
     public void uploadCategoryCoverImageTest() throws Exception {
+        mockSecurity();
+
         String categoryId = "123";
         String imageName = "category_abc.png";
 
@@ -232,6 +257,8 @@ public class CategoryControllerTest {
 
     @Test
     public void serveCoverImageTest() throws Exception {
+        mockSecurity();
+
         String categoryId = "123";
         Mockito.when(categoryService.get(Mockito.anyString())).thenReturn(categoryDto);
         FileInputStream inputStream = new FileInputStream(imagePath + "category_abc.png");
@@ -250,6 +277,8 @@ public class CategoryControllerTest {
 
     @Test
     public void createProductWithCategoryTest() throws Exception {
+        mockSecurity();
+
         String categoryId = "123";
 
         Mockito.when(productService.createWithCategory(Mockito.any(ProductDto.class), Mockito.anyString())).thenReturn(productDto);
@@ -269,6 +298,8 @@ public class CategoryControllerTest {
 
     @Test
     public void updateCategoryOfProductTest() throws Exception {
+        mockSecurity();
+
         String categoryId = "c123";
         String productId = "p123";
 
@@ -289,6 +320,8 @@ public class CategoryControllerTest {
 
     @Test
     public void getProductsOfCategoryTest() throws Exception {
+        mockSecurity();
+
         String categoryId = "123";
 
         ProductDto productDto1 = ProductDto.builder().title("Apple iphone").description("This is testing product").price(70000).discountedPrice(65000).quantity(2).live(true).stock(false).productImageName("product_def.png").build();
@@ -314,6 +347,34 @@ public class CategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title").exists());
+    }
+
+    private void mockSecurity() {
+        Mockito.when(jwtHelper.getUsernameFromToken(Mockito.any())).thenReturn("msabeerhussain007@gmail.com");
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        UserDetailsService userDetailsService = Mockito.mock(UserDetailsService.class);
+        Role role = Role.builder()
+                .roleName("wetrsdfwetwfasfwdf")
+                .roleName("ROLE_ADMIN")
+                .build();
+        User user = User.builder()
+                .userId("05a268c9-e80b-45a7-8ad1-eaefc17a08ce")
+                .name("Sabeer Hussain")
+                .email("msabeerhussain007@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("I am java developer")
+                .imageName("0b70a62d-3f32-4599-95a4-3d932c7605fd.jpg")
+                .roles(Set.of(role))
+                .build();
+        Mockito.when(userDetailsService.loadUserByUsername(Mockito.any())).thenReturn(user);
+
+        Mockito.when(jwtHelper.validateToken(Mockito.anyString(), Mockito.any())).thenReturn(true);
     }
 
     private String convertObjectToJsonString(Object category) {

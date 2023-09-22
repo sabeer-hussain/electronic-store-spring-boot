@@ -131,13 +131,17 @@ public class UserServiceTest {
         FileSystem fileSys = FileSystems.getDefault();
         Path originalFilePath = fileSys.getPath(imagePath +"/user_abc.png");
         Path tempFilePath = fileSys.getPath(imagePath + "/user_temp.png");
-        Files.copy(originalFilePath, tempFilePath);
+        if (!tempFilePath.toFile().exists()) {
+            Files.copy(originalFilePath, tempFilePath);
+        }
 
         userService.deleteUser(userId);
 
         Mockito.verify(userRepository, Mockito.times(1)).delete(user);
 
-        Files.copy(tempFilePath, originalFilePath);
+        if (!originalFilePath.toFile().exists()) {
+            Files.copy(tempFilePath, originalFilePath);
+        }
         Files.delete(tempFilePath);
     }
 
