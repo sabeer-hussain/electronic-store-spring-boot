@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.RoleDto;
 import com.sabeer.electronic.store.dtos.UserDto;
+import com.sabeer.electronic.store.entities.Role;
+import com.sabeer.electronic.store.entities.User;
+import com.sabeer.electronic.store.security.JwtHelper;
 import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +20,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +50,9 @@ public class UserControllerTest {
     @MockBean
     private FileService fileService;
 
+    @MockBean
+    private JwtHelper jwtHelper;
+
     private UserDto userDto;
 
     @Value("${user.profile.image.path}")
@@ -53,7 +63,7 @@ public class UserControllerTest {
 
     @BeforeEach
     public void init() {
-        RoleDto role = RoleDto.builder()
+        RoleDto roleDto = RoleDto.builder()
                 .roleName("abc")
                 .roleName("NORMAL")
                 .build();
@@ -64,7 +74,7 @@ public class UserControllerTest {
                 .gender("Male")
                 .about("This is testing create method")
                 .imageName("user_abc.png")
-                .roles(Set.of(role))
+                .roles(Set.of(roleDto))
                 .build();
     }
 
@@ -92,7 +102,10 @@ public class UserControllerTest {
 //        /users/{userId} + PUT + user data as json
 //        response: data as json + status ok
 
+        mockSecurity();
+
         String userId = "123";
+
         Mockito.when(userService.updateUser(Mockito.any(), Mockito.anyString())).thenReturn(userDto);
 
         // actual request for url
@@ -110,7 +123,10 @@ public class UserControllerTest {
 
     @Test
     public void deleteUserTest() throws Exception {
+        mockSecurity();
+
         String userId = "123";
+
         Mockito.doNothing().when(userService).deleteUser(Mockito.anyString());
 
         // actual request for url
@@ -128,6 +144,8 @@ public class UserControllerTest {
     // get all users : testing
     @Test
     public void getAllUsersTest() throws Exception {
+        mockSecurity();
+
         UserDto userDto1 = UserDto.builder().name("Durgesh").email("durgesh@gmail.com").password("durgesh").gender("Male").about("Testing").imageName("user_def.png").build();
         UserDto userDto2 = UserDto.builder().name("Amit").email("amit@gmail.com").password("amit").gender("Male").about("Testing").imageName("user_ghi.png").build();
         UserDto userDto3 = UserDto.builder().name("Sumit").email("sumit@gmail.com").password("sumit").gender("Male").about("Testing").imageName("user_jkl.png").build();
@@ -155,6 +173,8 @@ public class UserControllerTest {
 
     @Test
     public void getUserTest() throws Exception {
+        mockSecurity();
+
         String userId = "123";
         Mockito.when(userService.getUserById(Mockito.anyString())).thenReturn(userDto);
 
@@ -172,6 +192,8 @@ public class UserControllerTest {
 
     @Test
     public void getUserByEmailTest() throws Exception {
+        mockSecurity();
+
         String email = "durgesh@dev.in";
         Mockito.when(userService.getUserByEmail(Mockito.anyString())).thenReturn(userDto);
 
@@ -189,6 +211,8 @@ public class UserControllerTest {
 
     @Test
     public void searchUserTest() throws Exception {
+        mockSecurity();
+
         String keywords = "kumar";
         UserDto userDto = UserDto.builder()
                 .name("Sabeer Hussain")
@@ -215,6 +239,8 @@ public class UserControllerTest {
 
     @Test
     public void uploadUserImageTest() throws Exception {
+        mockSecurity();
+
         String userId = "123";
         String imageName = "user_abc.png";
         UserDto userDto = UserDto.builder()
@@ -256,6 +282,8 @@ public class UserControllerTest {
 
     @Test
     public void serveUserImageTest() throws Exception {
+        mockSecurity();
+
         String userId = "123";
         UserDto userDto = UserDto.builder()
                 .name("Sabeer Hussain")
@@ -278,6 +306,34 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    private void mockSecurity() {
+        Mockito.when(jwtHelper.getUsernameFromToken(Mockito.any())).thenReturn("msabeerhussain007@gmail.com");
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        UserDetailsService userDetailsService = Mockito.mock(UserDetailsService.class);
+        Role role = Role.builder()
+                .roleName("wetrsdfwetwfasfwdf")
+                .roleName("ROLE_ADMIN")
+                .build();
+        User user = User.builder()
+                .userId("05a268c9-e80b-45a7-8ad1-eaefc17a08ce")
+                .name("Sabeer Hussain")
+                .email("msabeerhussain007@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("I am java developer")
+                .imageName("0b70a62d-3f32-4599-95a4-3d932c7605fd.jpg")
+                .roles(Set.of(role))
+                .build();
+        Mockito.when(userDetailsService.loadUserByUsername(Mockito.any())).thenReturn(user);
+
+        Mockito.when(jwtHelper.validateToken(Mockito.anyString(), Mockito.any())).thenReturn(true);
     }
 
     private String convertObjectToJsonString(Object user) {

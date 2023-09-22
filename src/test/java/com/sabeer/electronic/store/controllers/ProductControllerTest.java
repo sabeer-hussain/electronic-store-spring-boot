@@ -3,6 +3,9 @@ package com.sabeer.electronic.store.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.ProductDto;
+import com.sabeer.electronic.store.entities.Role;
+import com.sabeer.electronic.store.entities.User;
+import com.sabeer.electronic.store.security.JwtHelper;
 import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.ProductService;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +19,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,6 +47,9 @@ public class ProductControllerTest {
 
     @MockBean
     private FileService fileService;
+
+    @MockBean
+    private JwtHelper jwtHelper;
 
     private ProductDto productDto;
 
@@ -67,6 +78,8 @@ public class ProductControllerTest {
 //        /products + POST + product data as json
 //        response: data as json + status created
 
+        mockSecurity();
+
         Mockito.when(productService.create(Mockito.any())).thenReturn(productDto);
 
         // actual request for url
@@ -87,6 +100,8 @@ public class ProductControllerTest {
 //        /products/{productId} + PUT + products data as json
 //        response: data as json + status ok
 
+        mockSecurity();
+
         String productId = "123";
         Mockito.when(productService.update(Mockito.any(), Mockito.anyString())).thenReturn(productDto);
 
@@ -105,6 +120,8 @@ public class ProductControllerTest {
 
     @Test
     public void deleteProductTest() throws Exception {
+        mockSecurity();
+
         String productId = "123";
         Mockito.doNothing().when(productService).delete(Mockito.anyString());
 
@@ -123,6 +140,8 @@ public class ProductControllerTest {
     // get all products : testing
     @Test
     public void getAllProductsTest() throws Exception {
+        mockSecurity();
+
         ProductDto productDto1 = ProductDto.builder().title("Apple iphone").description("This is testing product").price(70000).discountedPrice(65000).quantity(2).live(true).stock(false).productImageName("product_def.png").build();
         ProductDto productDto2 = ProductDto.builder().title("Samsung S22 Ultra").description("This is testing product").price(60000).discountedPrice(55000).quantity(2).live(false).stock(true).productImageName("product_ghi.png").build();
         ProductDto productDto3 = ProductDto.builder().title("Dell Laptop").description("This is testing product").price(150000).discountedPrice(145000).quantity(2).live(true).stock(true).productImageName("product_jkl.png").build();
@@ -150,6 +169,8 @@ public class ProductControllerTest {
 
     @Test
     public void getProductTest() throws Exception {
+        mockSecurity();
+
         String productId = "123";
         Mockito.when(productService.get(Mockito.anyString())).thenReturn(productDto);
 
@@ -168,6 +189,8 @@ public class ProductControllerTest {
     // get all live products : testing
     @Test
     public void getAllLiveProductsTest() throws Exception {
+        mockSecurity();
+
         ProductDto productDto1 = ProductDto.builder().title("Apple iphone").description("This is testing product").price(70000).discountedPrice(65000).quantity(2).live(true).stock(false).productImageName("product_def.png").build();
         ProductDto productDto2 = ProductDto.builder().title("Samsung S22 Ultra").description("This is testing product").price(60000).discountedPrice(55000).quantity(2).live(false).stock(true).productImageName("product_ghi.png").build();
         ProductDto productDto3 = ProductDto.builder().title("Dell Laptop").description("This is testing product").price(150000).discountedPrice(145000).quantity(2).live(true).stock(true).productImageName("product_jkl.png").build();
@@ -195,6 +218,8 @@ public class ProductControllerTest {
 
     @Test
     public void searchProductTest() throws Exception {
+        mockSecurity();
+
         String keywords = "phone";
 
         ProductDto productDto1 = ProductDto.builder().title("Apple iphone").description("This is testing product").price(70000).discountedPrice(65000).quantity(2).live(true).stock(false).productImageName("product_def.png").build();
@@ -226,6 +251,8 @@ public class ProductControllerTest {
 
     @Test
     public void uploadProductImageTest() throws Exception {
+        mockSecurity();
+
         String productId = "123";
         String imageName = "product_abc.png";
 
@@ -260,6 +287,8 @@ public class ProductControllerTest {
 
     @Test
     public void serveProductImageTest() throws Exception {
+        mockSecurity();
+
         String productId = "123";
         Mockito.when(productService.get(Mockito.anyString())).thenReturn(productDto);
         FileInputStream inputStream = new FileInputStream(imagePath + "product_abc.png");
@@ -274,6 +303,34 @@ public class ProductControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    private void mockSecurity() {
+        Mockito.when(jwtHelper.getUsernameFromToken(Mockito.any())).thenReturn("msabeerhussain007@gmail.com");
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        UserDetailsService userDetailsService = Mockito.mock(UserDetailsService.class);
+        Role role = Role.builder()
+                .roleName("wetrsdfwetwfasfwdf")
+                .roleName("ROLE_ADMIN")
+                .build();
+        User user = User.builder()
+                .userId("05a268c9-e80b-45a7-8ad1-eaefc17a08ce")
+                .name("Sabeer Hussain")
+                .email("msabeerhussain007@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("I am java developer")
+                .imageName("0b70a62d-3f32-4599-95a4-3d932c7605fd.jpg")
+                .roles(Set.of(role))
+                .build();
+        Mockito.when(userDetailsService.loadUserByUsername(Mockito.any())).thenReturn(user);
+
+        Mockito.when(jwtHelper.validateToken(Mockito.anyString(), Mockito.any())).thenReturn(true);
     }
 
     private String convertObjectToJsonString(Object product) {

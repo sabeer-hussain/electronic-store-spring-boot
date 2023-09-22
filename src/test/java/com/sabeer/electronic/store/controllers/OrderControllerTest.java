@@ -2,6 +2,9 @@ package com.sabeer.electronic.store.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sabeer.electronic.store.dtos.*;
+import com.sabeer.electronic.store.entities.Role;
+import com.sabeer.electronic.store.entities.User;
+import com.sabeer.electronic.store.security.JwtHelper;
 import com.sabeer.electronic.store.services.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -27,6 +34,9 @@ public class OrderControllerTest {
 
     @MockBean
     private OrderService orderService;
+
+    @MockBean
+    private JwtHelper jwtHelper;
 
     private ProductDto productDto;
 
@@ -70,6 +80,8 @@ public class OrderControllerTest {
 
     @Test
     public void createOrderTest() throws Exception {
+        mockSecurity();
+
         Mockito.when(orderService.createOrder(Mockito.any())).thenReturn(orderDto);
 
         CreateOrderRequestDto createOrderRequestDto = CreateOrderRequestDto.builder()
@@ -95,6 +107,8 @@ public class OrderControllerTest {
 
     @Test
     public void removeOrderTest() throws Exception {
+        mockSecurity();
+
         String orderId = "o123";
         Mockito.doNothing().when(orderService).removeOrder(Mockito.anyString());
 
@@ -112,6 +126,8 @@ public class OrderControllerTest {
 
     @Test
     public void getOrdersOfUserTest() throws Exception {
+        mockSecurity();
+
         String orderId = "123";
         Mockito.when(orderService.getOrdersOfUser(Mockito.anyString())).thenReturn(List.of(orderDto));
 
@@ -130,6 +146,7 @@ public class OrderControllerTest {
     // get all orders : testing
     @Test
     public void getAllOrdersTest() throws Exception {
+        mockSecurity();
 
         OrderDto orderDto1 = OrderDto.builder().orderId("o456").billingName("Hussain").billingPhone("8508280103").billingAddress("2B, Kazimar Street, Pallivasal Lane, Madurai-625001").orderedDate(new Date()).paymentStatus("NOT_PAID").orderStatus("DISPATCHED").build();
         OrderDto orderDto2 = OrderDto.builder().orderId("0789").billingName("Khader").billingPhone("8508280104").billingAddress("2C, Kazimar Street, Pallivasal Lane, Madurai-625001").orderedDate(new Date()).paymentStatus("PAID").orderStatus("DELIVERED").build();
@@ -156,6 +173,8 @@ public class OrderControllerTest {
 
     @Test
     public void updateOrderTest() throws Exception {
+        mockSecurity();
+
         String orderId = "o123";
         Mockito.when(orderService.updateOrder(Mockito.any(), Mockito.anyString())).thenReturn(orderDto);
 
@@ -178,6 +197,34 @@ public class OrderControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").exists());
+    }
+
+    private void mockSecurity() {
+        Mockito.when(jwtHelper.getUsernameFromToken(Mockito.any())).thenReturn("msabeerhussain007@gmail.com");
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        UserDetailsService userDetailsService = Mockito.mock(UserDetailsService.class);
+        Role role = Role.builder()
+                .roleName("wetrsdfwetwfasfwdf")
+                .roleName("ROLE_ADMIN")
+                .build();
+        User user = User.builder()
+                .userId("05a268c9-e80b-45a7-8ad1-eaefc17a08ce")
+                .name("Sabeer Hussain")
+                .email("msabeerhussain007@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("I am java developer")
+                .imageName("0b70a62d-3f32-4599-95a4-3d932c7605fd.jpg")
+                .roles(Set.of(role))
+                .build();
+        Mockito.when(userDetailsService.loadUserByUsername(Mockito.any())).thenReturn(user);
+
+        Mockito.when(jwtHelper.validateToken(Mockito.anyString(), Mockito.any())).thenReturn(true);
     }
 
     private String convertObjectToJsonString(Object order) {
