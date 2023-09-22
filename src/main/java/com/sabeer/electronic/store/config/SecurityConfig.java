@@ -116,6 +116,8 @@ public class SecurityConfig {
 //            .disable()
 //            .and()
             .authorizeRequests()
+            .antMatchers("/test")
+            .permitAll()
             .antMatchers("/auth/login")
             .permitAll()
             .antMatchers("/auth/google")
