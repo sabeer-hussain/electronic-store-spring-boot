@@ -38,7 +38,7 @@ public class UserDto {
     private String about;
 
 //    Custom validator
-    @ImageNameValid
+//    @ImageNameValid
     private String imageName;
 
     private Set<RoleDto> roles = new HashSet<>();

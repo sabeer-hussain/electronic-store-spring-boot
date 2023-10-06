@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
         // email update
 
         // encoding password
-        if (StringUtils.hasText(userDto.getPassword())) {
+        if (!userDto.getPassword().equals(user.getPassword())) {
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
         user.setAbout(userDto.getAbout());
