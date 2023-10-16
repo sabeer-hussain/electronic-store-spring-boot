@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
@@ -282,6 +283,82 @@ public class ProductControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    public void updateProductImage_newImage_Test() throws Exception {
+        mockSecurity();
+
+        String productId = "123";
+        String imageName = "product_abc.png";
+
+        productDto.setProductImageName(null);
+        Mockito.when(productService.get(Mockito.anyString())).thenReturn(productDto);
+        Mockito.when(fileService.uploadFile(Mockito.any(MultipartFile.class), Mockito.anyString())).thenReturn(imageName);
+        productDto.setProductImageName(imageName);
+        Mockito.when(productService.update(Mockito.any(), Mockito.anyString())).thenReturn(productDto);
+
+        String name = "productImage";
+        String originalFileName = "product_abc.png";
+        String contentType = "image/jpeg";
+        byte[] content = null;
+        try {
+            content = Files.readAllBytes(Paths.get(imagePath + name));
+        } catch (final IOException e) {
+        }
+
+        MockMultipartFile multipartFile = new MockMultipartFile(name, originalFileName, contentType, content);
+
+
+        // actual request for url
+        this.mockMvc
+                .perform(MockMvcRequestBuilders
+                        .multipart(HttpMethod.PUT, "/products/image/" + productId)
+                        .file(multipartFile)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtc2FiZWVyaHVzc2FpbjAwN0BnbWFpbC5jb20iLCJpYXQiOjE2OTUwMTQzMzIsImV4cCI6MTY5NTAzMjMzMn0.LdfILm4J_FI1ZS06pegfemU9iy-8nRWv53OrL1VElWBeeCULJq_0zhncI_XAhK2b5vdmtjQb817dAd_ZPRFeMw")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    public void updateProductImage_updateImage_Test() throws Exception {
+        mockSecurity();
+
+        String productId = "123";
+        String imageName = "product_abc.png";
+
+        productDto.setProductImageName(null);
+        Mockito.when(productService.get(Mockito.anyString())).thenReturn(productDto);
+        Mockito.when(fileService.uploadFile(Mockito.any(MultipartFile.class), Mockito.anyString())).thenReturn(imageName);
+        Mockito.when(productService.update(Mockito.any(), Mockito.anyString())).thenReturn(productDto);
+        productDto.setProductImageName(imageName);
+
+        String name = "productImage";
+        String originalFileName = "product_abc.png";
+        String contentType = "image/jpeg";
+        byte[] content = null;
+        try {
+            content = Files.readAllBytes(Paths.get(imagePath + name));
+        } catch (final IOException e) {
+        }
+
+        MockMultipartFile multipartFile = new MockMultipartFile(name, originalFileName, contentType, content);
+
+
+        // actual request for url
+        this.mockMvc
+                .perform(MockMvcRequestBuilders
+                        .multipart(HttpMethod.PUT, "/products/image/" + productId)
+                        .file(multipartFile)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtc2FiZWVyaHVzc2FpbjAwN0BnbWFpbC5jb20iLCJpYXQiOjE2OTUwMTQzMzIsImV4cCI6MTY5NTAzMjMzMn0.LdfILm4J_FI1ZS06pegfemU9iy-8nRWv53OrL1VElWBeeCULJq_0zhncI_XAhK2b5vdmtjQb817dAd_ZPRFeMw")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists());
     }
 
