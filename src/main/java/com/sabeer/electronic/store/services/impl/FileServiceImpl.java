@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
@@ -44,6 +45,12 @@ public class FileServiceImpl implements FileService {
         } else {
             throw new BadApiRequestException("File with this " + extension + " not allowed !!");
         }
+    }
+
+    @Override
+    public void deleteFile(String path, String imageName) throws IOException {
+        Path imagePath = Paths.get(path + imageName);
+        Files.delete(imagePath);
     }
 
     @Override

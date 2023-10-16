@@ -127,6 +127,33 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    // update product image
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/image/{productId}")
+    public ResponseEntity<ImageResponse> updateProductImage(
+            @PathVariable String productId,
+            @RequestParam("productImage") MultipartFile image) throws IOException {
+        ProductDto productDto = productService.get(productId);
+        String productImageName = productDto.getProductImageName();
+        String fileName = fileService.uploadFile(image, imagePath);
+        productDto.setProductImageName(fileName);
+        ProductDto updatedProduct = productService.update(productDto, productId);
+
+        // delete existing product image for the productId after updated new product image
+        if (productImageName != null) {
+            fileService.deleteFile(imagePath, productImageName);
+        }
+
+        ImageResponse response = ImageResponse.builder()
+                .imageName(updatedProduct.getProductImageName())
+                .message("Product image is successfully updated !!")
+                .status(HttpStatus.OK)
+                .success(true)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     // serve product image
     @GetMapping("/image/{productId}")
     public void serveProductImage(@PathVariable String productId, HttpServletResponse response) throws IOException {
