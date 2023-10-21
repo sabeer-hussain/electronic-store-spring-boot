@@ -22,6 +22,7 @@ public class OrderDto {
     private String billingName;
     private Date orderedDate = new Date();
     private Date deliveredDate;
-//    private UserDto user;
+    // add this to get user information with order
+    private UserDto user;
     private List<OrderItemDto> orderItems = new ArrayList<>();
 }

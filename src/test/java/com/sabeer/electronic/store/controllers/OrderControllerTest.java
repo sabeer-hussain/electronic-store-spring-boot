@@ -38,18 +38,27 @@ public class OrderControllerTest {
     @MockBean
     private JwtHelper jwtHelper;
 
-    private ProductDto productDto;
-
     private OrderDto orderDto;
-
-    private OrderItemDto orderItemDto;
 
     @Autowired
     private MockMvc mockMvc;
 
     @BeforeEach
     public void init() {
-        productDto = ProductDto.builder()
+        RoleDto roleDto = RoleDto.builder()
+                .roleName("abc")
+                .roleName("NORMAL")
+                .build();
+        UserDto userDto = UserDto.builder()
+                .name("Sabeer Hussain")
+                .email("msabeerhussain007@gmail.com")
+                .password("abcd")
+                .gender("Male")
+                .about("This is testing create method")
+                .imageName("user_abc.png")
+                .roles(Set.of(roleDto))
+                .build();
+        ProductDto productDto = ProductDto.builder()
                 .productId("p123")
                 .title("Redmi Note 5 Pro")
                 .description("This is testing product")
@@ -60,7 +69,7 @@ public class OrderControllerTest {
                 .stock(true)
                 .productImageName("product_abc.png")
                 .build();
-        orderItemDto = OrderItemDto.builder()
+        OrderItemDto orderItemDto = OrderItemDto.builder()
                 .orderItemId(123)
                 .totalPrice(45000)
                 .quantity(3)
@@ -75,6 +84,7 @@ public class OrderControllerTest {
                 .paymentStatus("PAID")
                 .orderStatus("PENDING")
                 .orderItems(new ArrayList<>(List.of(orderItemDto)))
+                .user(userDto)
                 .build();
     }
 
