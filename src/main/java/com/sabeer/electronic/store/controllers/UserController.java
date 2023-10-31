@@ -1,9 +1,6 @@
 package com.sabeer.electronic.store.controllers;
 
-import com.sabeer.electronic.store.dtos.ApiResponseMessage;
-import com.sabeer.electronic.store.dtos.ImageResponse;
-import com.sabeer.electronic.store.dtos.PageableResponse;
-import com.sabeer.electronic.store.dtos.UserDto;
+import com.sabeer.electronic.store.dtos.*;
 import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.UserService;
 import io.swagger.annotations.Api;
@@ -24,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -104,8 +100,13 @@ public class UserController {
 
     // search user
     @GetMapping("/search/{keywords}")
-    public ResponseEntity<List<UserDto>> searchUser(@PathVariable String keywords) {
-        return new ResponseEntity<>(userService.searchUser(keywords), HttpStatus.OK);
+    public ResponseEntity<PageableResponse<UserDto>> searchUser(@PathVariable String keywords,
+            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "name", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir) {
+        PageableResponse<UserDto> pageableResponse = userService.searchUser(keywords, pageNumber, pageSize, sortBy, sortDir);
+        return new ResponseEntity<>(pageableResponse, HttpStatus.OK);
     }
 
     // upload user image

@@ -4,7 +4,6 @@ import com.sabeer.electronic.store.dtos.PageableResponse;
 import com.sabeer.electronic.store.dtos.UserDto;
 import com.sabeer.electronic.store.entities.User;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -28,7 +27,7 @@ public interface UserService {
     UserDto getUserByEmail(String email);
 
     // search user
-    List<UserDto> searchUser(String keyword);
+    PageableResponse<UserDto> searchUser(String keyword, int pageNumber, int pageSize, String sortBy, String sortDir);
 
     Optional<User> findUserByEmailOptional(String email);
 

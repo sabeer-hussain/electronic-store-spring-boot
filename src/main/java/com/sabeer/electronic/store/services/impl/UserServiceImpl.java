@@ -162,11 +162,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> searchUser(String keyword) {
+    public PageableResponse<UserDto> searchUser(String keyword, int pageNumber, int pageSize, String sortBy, String sortDir) {
+        /*
         List<User> users = userRepository.findByNameContaining(keyword);
 //        List<UserDto> dtoList = users.stream().map(user -> entityToDto(user)).collect(Collectors.toList());
         List<UserDto> dtoList = users.stream().map(user -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList());
         return dtoList;
+         */
+
+        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<User> page = userRepository.findByNameContaining(keyword, pageable);
+        return Helper.getPageableResponse(page, UserDto.class);
     }
 
     @Override
