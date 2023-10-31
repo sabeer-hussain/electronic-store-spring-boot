@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -214,16 +213,20 @@ public class UserControllerTest {
         mockSecurity();
 
         String keywords = "kumar";
-        UserDto userDto = UserDto.builder()
-                .name("Sabeer Hussain")
-                .email("msabeerhussain007@gmail.com")
-                .password("abcd")
-                .gender("Male")
-                .about("This is testing create method")
-                .imageName("user_abc.png")
-                .build();
-        List<UserDto> userDtoList = List.of(userDto);
-        Mockito.when(userService.searchUser(Mockito.anyString())).thenReturn(userDtoList);
+
+        UserDto userDto1 = UserDto.builder().name("Durgesh").email("durgesh@gmail.com").password("durgesh").gender("Male").about("Testing").imageName("user_def.png").build();
+        UserDto userDto2 = UserDto.builder().name("Amit").email("amit@gmail.com").password("amit").gender("Male").about("Testing").imageName("user_ghi.png").build();
+        UserDto userDto3 = UserDto.builder().name("Sumit").email("sumit@gmail.com").password("sumit").gender("Male").about("Testing").imageName("user_jkl.png").build();
+        UserDto userDto4 = UserDto.builder().name("Ankit").email("ankit@gmail.com").password("ankit").gender("Male").about("Testing").imageName("user_mno.png").build();
+
+        PageableResponse<UserDto> pageableResponse = new PageableResponse<>();
+        pageableResponse.setContent(Arrays.asList(userDto1, userDto2, userDto3, userDto4));
+        pageableResponse.setPageNumber(100);
+        pageableResponse.setPageSize(10);
+        pageableResponse.setTotalElements(10000);
+        pageableResponse.setTotalPages(1000);
+        pageableResponse.setLastPage(false);
+        Mockito.when(userService.searchUser(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString())).thenReturn(pageableResponse);
 
         // actual request for url
         this.mockMvc
@@ -234,7 +237,7 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").exists());
+                .andExpect(jsonPath("$.content[0].name").exists());
     }
 
     @Test

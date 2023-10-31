@@ -306,12 +306,15 @@ public class UserServiceTest {
                 .roles(Set.of(role))
                 .build();
 
+        List<User> userList = List.of(user1, user2, user3);
+        Page<User> page = new PageImpl<>(userList);
+
         String keywords = "Kumar";
-        Mockito.when(userRepository.findByNameContaining(keywords)).thenReturn(Arrays.asList(user, user1, user2, user3));
+        Mockito.when(userRepository.findByNameContaining(Mockito.eq(keywords), Mockito.any(Pageable.class))).thenReturn(page);
 
-        List<UserDto> userDtos = userService.searchUser(keywords);
+        PageableResponse<UserDto> pageableUserDtoResponse = userService.searchUser(keywords, 1, 2, "name", "desc");
 
-        Assertions.assertEquals(4, userDtos.size(), "Size not matched !!");
+        Assertions.assertEquals(3, pageableUserDtoResponse.getContent().size());
     }
 
     // find user by email test case
