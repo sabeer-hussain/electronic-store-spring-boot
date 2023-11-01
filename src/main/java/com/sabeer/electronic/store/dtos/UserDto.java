@@ -1,7 +1,7 @@
 package com.sabeer.electronic.store.dtos;
 
 import com.sabeer.electronic.store.validator.ImageNameValid;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import jakarta.validation.constraints.Email;
@@ -20,7 +20,7 @@ public class UserDto {
     private String userId;
 
     @Size(min = 3, max = 20, message = "Invalid Name !!")
-    @ApiModelProperty(value = "user_name", name = "username", required = true, notes = "user name of new user !!")
+    @Schema(description = "user name of new user !!")
     private String name;
 
 //    @Email(message = "Invalid User Email !!")

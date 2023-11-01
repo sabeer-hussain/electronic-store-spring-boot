@@ -3,7 +3,7 @@ package com.sabeer.electronic.store.controllers;
 import com.sabeer.electronic.store.dtos.*;
 import com.sabeer.electronic.store.services.FileService;
 import com.sabeer.electronic.store.services.ProductService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ import java.io.InputStream;
 @RestController
 @RequestMapping("/products")
 //@CrossOrigin(origins = "*")
-@Api(value = "ProductController", description = "REST APIs related to perform product operations !!")
+@Tag(name = "ProductController", description = "REST APIs related to perform product operations !!")
 public class ProductController {
 
     @Value("${product.image.path}")
