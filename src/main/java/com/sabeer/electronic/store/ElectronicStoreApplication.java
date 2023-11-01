@@ -49,13 +49,13 @@ public class ElectronicStoreApplication implements CommandLineRunner {
 //			userRepository.save(user);
 //		});
 
-		// for creating roles when application starts
-//		try {
-//			Role roleAdmin = Role.builder().roleId(adminRoleId).roleName("ROLE_ADMIN").build();
-//			Role roleNormal = Role.builder().roleId(normalRoleId).roleName("ROLE_NORMAL").build();
-//			roleRepository.saveAll(Arrays.asList(roleAdmin, roleNormal));
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//		}
+//		 for creating roles when application starts
+		try {
+			Role roleAdmin = Role.builder().roleId(adminRoleId).roleName("ROLE_ADMIN").build();
+			Role roleNormal = Role.builder().roleId(normalRoleId).roleName("ROLE_NORMAL").build();
+			roleRepository.saveAll(Arrays.asList(roleAdmin, roleNormal));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 }
