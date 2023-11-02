@@ -1,10 +1,13 @@
 package com.sabeer.electronic.store.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -65,15 +68,29 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
+        String schemeName = "bearerScheme";
         return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement()
+                        .addList(schemeName)
+                )
+                .components(new Components()
+                        .addSecuritySchemes(schemeName, new SecurityScheme()
+                                .name(schemeName)
+                                .type(SecurityScheme.Type.HTTP)
+                                .bearerFormat("JWT")
+                                .scheme("bearer")
+                        )
+                )
                 .info(new Info()
                         .title("Electronic Store API")
                         .description("This is electronic store project api developed by Sabeer")
                         .version("v1.0")
                         .contact(new Contact().name("Sabeer").email("msabeerhussain007@gmail.com").url("https://www.sabeertech.com"))
-                        .license(new License().name("License of APIs").url("https://www.sabeertech.com/aboutus")))
+                        .license(new License().name("License of APIs").url("https://www.sabeertech.com/aboutus"))
+                )
                 .externalDocs(new ExternalDocumentation()
                         .description("This is external url")
-                        .url("https://www.sabeertech.com"));
+                        .url("https://www.sabeertech.com")
+                );
     }
 }
