@@ -13,7 +13,9 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
@@ -31,7 +33,7 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.Arrays;
 
 @Configuration
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final String[] PUBLIC_URLS = {
@@ -39,7 +41,8 @@ public class SecurityConfig {
         "/webjars/**",
         "/swagger-resources/**",
         "/v3/api-docs",
-        "/v2/api-docs"
+//        "/v2/api-docs",
+        "/test"
     };
 
     @Autowired
@@ -110,33 +113,26 @@ public class SecurityConfig {
 
         // Configure JWT in spring security config, i.e. JWT Token Based Authentication
         http
-            .csrf()
-            .disable()
-//            .cors()
-//            .disable()
-//            .and()
-            .authorizeRequests()
-            .antMatchers("/test")
-            .permitAll()
-            .antMatchers("/auth/login")
-            .permitAll()
-            .antMatchers("/auth/google")
-            .permitAll()
-            .antMatchers(HttpMethod.POST, "/users")
-            .permitAll()
-            .antMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
-            .antMatchers(PUBLIC_URLS)
-            .permitAll()
-            .antMatchers(HttpMethod.GET)
-            .permitAll()
-            .anyRequest()
-            .authenticated()
-            .and()
-            .exceptionHandling()
-            .authenticationEntryPoint(authenticationEntryPoint)
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            .csrf(AbstractHttpConfigurer::disable)
+//            .cors(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(request ->
+                request.requestMatchers("/test")
+                .permitAll()
+                .requestMatchers("/auth/login")
+                .permitAll()
+                .requestMatchers("/auth/google")
+                .permitAll()
+                .requestMatchers(HttpMethod.POST, "/users")
+                .permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
+                .requestMatchers(PUBLIC_URLS)
+                .permitAll()
+                .requestMatchers(HttpMethod.GET)
+                .permitAll()
+                .anyRequest()
+                .authenticated())
+            .exceptionHandling(config -> config.authenticationEntryPoint(authenticationEntryPoint))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -1,13 +1,13 @@
 package com.sabeer.electronic.store.dtos;
 
 import com.sabeer.electronic.store.validator.ImageNameValid;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +20,7 @@ public class UserDto {
     private String userId;
 
     @Size(min = 3, max = 20, message = "Invalid Name !!")
-    @ApiModelProperty(value = "user_name", name = "username", required = true, notes = "user name of new user !!")
+    @Schema(description = "user name of new user !!")
     private String name;
 
 //    @Email(message = "Invalid User Email !!")

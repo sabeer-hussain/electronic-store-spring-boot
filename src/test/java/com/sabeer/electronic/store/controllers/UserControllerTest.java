@@ -145,7 +145,7 @@ public class UserControllerTest {
     public void getAllUsersTest() throws Exception {
         mockSecurity();
 
-        UserDto userDto1 = UserDto.builder().name("Durgesh").email("durgesh@gmail.com").password("durgesh").gender("Male").about("Testing").imageName("user_def.png").build();
+        UserDto userDto1 = UserDto.builder().name("Sabeer").email("sabeerhussain@gmail.com").password("sabeer").gender("Male").about("Testing").imageName("user_def.png").build();
         UserDto userDto2 = UserDto.builder().name("Amit").email("amit@gmail.com").password("amit").gender("Male").about("Testing").imageName("user_ghi.png").build();
         UserDto userDto3 = UserDto.builder().name("Sumit").email("sumit@gmail.com").password("sumit").gender("Male").about("Testing").imageName("user_jkl.png").build();
         UserDto userDto4 = UserDto.builder().name("Ankit").email("ankit@gmail.com").password("ankit").gender("Male").about("Testing").imageName("user_mno.png").build();
@@ -193,7 +193,7 @@ public class UserControllerTest {
     public void getUserByEmailTest() throws Exception {
         mockSecurity();
 
-        String email = "durgesh@dev.in";
+        String email = "sabeerhussain@dev.in";
         Mockito.when(userService.getUserByEmail(Mockito.anyString())).thenReturn(userDto);
 
         // actual request for url
@@ -214,7 +214,7 @@ public class UserControllerTest {
 
         String keywords = "kumar";
 
-        UserDto userDto1 = UserDto.builder().name("Durgesh").email("durgesh@gmail.com").password("durgesh").gender("Male").about("Testing").imageName("user_def.png").build();
+        UserDto userDto1 = UserDto.builder().name("Sabeer").email("sabeer@gmail.com").password("sabeer").gender("Male").about("Testing").imageName("user_def.png").build();
         UserDto userDto2 = UserDto.builder().name("Amit").email("amit@gmail.com").password("amit").gender("Male").about("Testing").imageName("user_ghi.png").build();
         UserDto userDto3 = UserDto.builder().name("Sumit").email("sumit@gmail.com").password("sumit").gender("Male").about("Testing").imageName("user_jkl.png").build();
         UserDto userDto4 = UserDto.builder().name("Ankit").email("ankit@gmail.com").password("ankit").gender("Male").about("Testing").imageName("user_mno.png").build();
