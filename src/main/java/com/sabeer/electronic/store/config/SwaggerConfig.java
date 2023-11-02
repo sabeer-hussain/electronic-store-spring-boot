@@ -1,13 +1,15 @@
 package com.sabeer.electronic.store.config;
 
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +18,33 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Electronic Store API",
+                description = "This is backend of electronic store developed by Sabeer",
+                version = "1.0V",
+                contact = @Contact(
+                        name = "Sabeer Hussain",
+                        email = "msabeerhussain007@gmail.com",
+                        url = "https://www.sabeertech.com"
+                ),
+                license = @License(
+                        name = "OPEN License",
+                        url = "https://www.sabeertech.com"
+                )
+
+        ),
+        externalDocs = @ExternalDocumentation(
+                description = "This is external docs",
+                url = "https://www.sabeertech.com"
+        )
+)
+@SecurityScheme(
+        name = "bearerScheme",
+        type= SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class SwaggerConfig {
 
     /*
@@ -66,6 +95,7 @@ public class SwaggerConfig {
     }
      */
 
+    /*
     @Bean
     public OpenAPI openAPI() {
         String schemeName = "bearerScheme";
@@ -93,4 +123,5 @@ public class SwaggerConfig {
                         .url("https://www.sabeertech.com")
                 );
     }
+     */
 }

@@ -12,6 +12,7 @@ import com.sabeer.electronic.store.entities.User;
 import com.sabeer.electronic.store.exceptions.BadApiRequestException;
 import com.sabeer.electronic.store.security.JwtHelper;
 import com.sabeer.electronic.store.services.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import java.util.Map;
 //        maxAge = 3600
 //)
 @Tag(name = "AuthController", description = "APIs for Authentication !!")
+@SecurityRequirement(name = "bearerScheme")
 public class AuthController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);

@@ -6,6 +6,7 @@ import com.sabeer.electronic.store.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import java.io.InputStream;
 @RequestMapping("/users")
 //@CrossOrigin("*")
 @Tag(name = "UserController", description = "REST APIs related to perform user operations !!")
+@SecurityRequirement(name = "bearerScheme")
 public class UserController {
 
     private Logger LOGGER = LoggerFactory.getLogger(UserController.class);
