@@ -4,7 +4,8 @@ import com.sabeer.electronic.store.dtos.AddItemToCartRequestDto;
 import com.sabeer.electronic.store.dtos.ApiResponseMessage;
 import com.sabeer.electronic.store.dtos.CartDto;
 import com.sabeer.electronic.store.services.CartService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/carts")
-@Api(value = "CartController", description = "REST APIs related to perform cart operations !!")
+@Tag(name = "Cart Controller", description = "This is cart api for cart operations !!")
+@SecurityRequirement(name = "bearerScheme")
 public class CartController {
 
     @Autowired

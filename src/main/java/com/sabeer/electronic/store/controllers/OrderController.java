@@ -2,19 +2,21 @@ package com.sabeer.electronic.store.controllers;
 
 import com.sabeer.electronic.store.dtos.*;
 import com.sabeer.electronic.store.services.OrderService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
-@Api(value = "OrderController", description = "REST APIs related to perform order operations !!")
+@Tag(name = "OrderController", description = "REST APIs related to perform order operations !!")
+@SecurityRequirement(name = "bearerScheme")
 public class OrderController {
 
     @Autowired
